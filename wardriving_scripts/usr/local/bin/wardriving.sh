@@ -2,7 +2,7 @@
 
 # --- CONFIGURACIÓN ---
 IFACE="wlan1"
-DB_USER="alra"; DB_PASS="Gmv2MGB2026*!"; DB_NAME="weto_db"
+DB_USER="weto"; DB_PASS="weto12345"; DB_NAME="weto_db"
 
 # 1. Configuración de Interfaz
 ip link set $IFACE down
