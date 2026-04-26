@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="es">
+	<!--
+	Copyright (c) 2026 Álvaro Rubio Adán
+	Licensed under the Creative Commons Attribution 4.0 International (CC BY 4.0)
+	You are free to share and adapt this material under the condition that 
+	appropriate credit is given to the original author.
+	Full license text: https://creativecommons.org/licenses/by/4.0/
+	-->
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Weto-WarDriving (SETUP)</title>
+    <link rel="stylesheet" href="css/common.css">
+    <link rel="stylesheet" href="css/status.css">
+    <link rel="stylesheet" href="css/setup.css">
+</head>
+<body>
+
+    <!-- NAV LATERAL -->
+    <nav id="nav-menu">
+        <a href="index.html">01_HOME</a>
+        <a href="map.html">02_MAP</a>
+        <a href="graficos.html">03_STATISTICS</a>
+        <a href="about.html">04_PROJECT</a>
+        <a href="status.html">05_STATUS</a>
+        <a href="setup.html" class="active">06_SETUP</a>
+    </nav>
+    <div id="menu-overlay" onclick="toggleMenu()"></div>
+    <div class="fab-menu" onclick="toggleMenu()"><span></span><span></span><span></span></div>
+
+    <div class="page-wrap">
+
+        <!-- HEADER -->
+        <div class="page-header">
+            <h1>WETO_WARDRIVING <span>SETUP</span></h1>
+            <div id="live-clock">
+                <span id="sync-indicator"></span>
+                <span id="clock-val">--:--:--</span><br>
+                <span style="font-size:9px; opacity:0.4;">REFRESH 5s</span>
+            </div>
+        </div>
+
+        <!-- ROW 1: TEMP + POWER -->
+        <div class="grid-top" style="margin-bottom:14px;">
+
+            <!-- HARDWARE STATS -->
+            <div class="card" data-id="HW_MONITOR">
+                <div class="card-title">HARDWARE_MONITOR</div>
+                <div style="display:flex; gap:20px; align-items:flex-end; margin-bottom:14px;">
+                    <div>
+                        <div id="temp-val" class="big-number ok">--°C</div>
+                        <div class="sub-label">CPU TEMP</div>
+                    </div>
+                    <div>
+                        <div id="temp-bar-wrap" class="bar-wrap" style="width:120px;">
+                            <div class="bar-track"><div id="temp-bar" class="bar-fill" style="width:0%; background:var(--green);"></div></div>
+                            <div class="bar-info"><span>0°C</span><span>85°C</span></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="hw-grid">
+                    <div class="hw-item"><span class="hw-lbl">THROTTLE</span><span id="throttle-val" class="hw-val">--</span></div>
+                    <div class="hw-item"><span class="hw-lbl">VOLTAGE</span><span id="voltage-val" class="hw-val">-- V</span></div>
+                    <div class="hw-item"><span class="hw-lbl">FREQ ARM</span><span id="freq-val" class="hw-val">-- MHz</span></div>
+                    <div class="hw-item"><span class="hw-lbl">FREE DISK</span><span id="disk-val" class="hw-val">--</span></div>
+                </div>
+            </div>
+
+            <!-- POWER CONTROL -->
+            <div class="card" data-id="POWER_CTRL">
+                <div class="card-title">POWER_CONTROL</div>
+                <p style="font-size:10px; opacity:0.5; margin:0 0 16px;">
+                    These actions have repercussions at the OS level. Please use them with caution.
+                </p>
+                <div style="display:flex; flex-direction:column; gap:10px;">
+                    <button class="btn-action btn-warn" onclick="confirmAction('reboot')">
+                        ↺ &nbsp;REBOOT SYSTEM
+                    </button>
+                    <button class="btn-action btn-danger" onclick="confirmAction('shutdown')">
+                        ⏻ &nbsp;SHUTDOWN SYSTEM
+                    </button>
+                </div>
+                <div id="power-msg" class="action-msg" style="display:none;"></div>
+            </div>
+        </div>
+
+        <!-- ROW 2: NETWORK MODE -->
+        <div class="card" data-id="NETWORK_MODE" style="margin-bottom:14px;">
+            <div class="card-title">NETWORK_MODE — WLAN0</div>
+
+            <!-- Mode selector tabs -->
+            <div class="mode-tabs">
+                <button class="mode-tab" id="tab-ap" onclick="switchTab('ap')">📡 &nbsp;ACCESS POINT</button>
+                <button class="mode-tab" id="tab-sta" onclick="switchTab('sta')">🌐 &nbsp;CONNECT TO WIFI</button>
+            </div>
+
+            <!-- Current wlan0 status -->
+            <div class="wlan-status-row">
+                <span class="hw-lbl">WLAN0 STATUS</span>
+                <span id="wlan0-status-badge" class="mode-badge">--</span>
+                <span id="wlan0-ip" style="font-size:10px; opacity:0.5; margin-left:8px;">--</span>
+            </div>
+
+            <!-- AP PANEL -->
+            <div id="panel-ap" class="mode-panel" style="display:none;">
+                <div class="setup-form">
+                    <label class="setup-label">Raspberry PI AP ESSID</label>
+                    <input id="ap-ssid" class="setup-input" type="text" placeholder="WetoWarDriving_AP" maxlength="32">
+                    <label class="setup-label" style="margin-top:12px;">PASSWORD (min. 8 chararacters)</label>
+                    <input id="ap-pass" class="setup-input" type="password" placeholder="••••••••" maxlength="63">
+                    <label class="setup-label" style="margin-top:12px;">CHANNEL</label>
+                    <select id="ap-channel" class="setup-input">
+                        <option value="1">Channel 1</option>
+                        <option value="6" selected>Channel 6</option>
+                        <option value="11">Channel 11</option>
+                    </select>
+                    <button class="btn-action btn-primary" style="margin-top:16px;" onclick="applyAP()">
+                        ▶ &nbsp;CONFIGURE AND ENABLE ACCESS POINT
+                    </button>
+                </div>
+                <div id="ap-msg" class="action-msg" style="display:none;"></div>
+            </div>
+
+            <!-- STA PANEL -->
+            <div id="panel-sta" class="mode-panel" style="display:none;">
+                <div style="display:flex; gap:10px; margin-bottom:12px;">
+                    <button class="btn-action btn-secondary" onclick="scanWifi()" id="btn-scan">
+                        🔍 &nbsp;SCAN NETWORKS
+                    </button>
+                </div>
+                <div id="wifi-list" class="wifi-list">
+                    <div style="opacity:0.4; font-size:11px;">Tap SCAN to scan for available networks...</div>
+                </div>
+                <div id="wifi-connect-form" class="setup-form" style="display:none; margin-top:16px;">
+                    <div id="selected-ssid-label" class="selected-net"></div>
+                    <label class="setup-label" style="margin-top:10px;">PASSWORD</label>
+                    <input id="sta-pass" class="setup-input" type="password" placeholder="••••••••">
+                    <button class="btn-action btn-primary" style="margin-top:12px;" onclick="connectWifi()">
+                        ▶ &nbsp;CONNECT
+                    </button>
+                    <button class="btn-action btn-secondary" style="margin-top:8px;" onclick="cancelConnect()">
+                        ✕ &nbsp;CANCEL
+                    </button>
+                </div>
+                <div id="sta-msg" class="action-msg" style="display:none;"></div>
+            </div>
+        </div>
+
+        <!-- ROW 3: SERVICES -->
+        <div class="card" data-id="SERVICES" style="margin-bottom:14px;">
+            <div class="card-title">SYSTEM_SERVICES_STATUS_AND_MANAGE</div>
+            <div id="services-list" class="services-list">
+                <div style="opacity:0.4; font-size:11px;">Loading service data...</div>
+            </div>
+        </div>
+
+        <!-- ROW 4: JOURNAL LOG -->
+        <div class="card" data-id="JOURNAL" style="margin-bottom:14px;">
+            <div class="card-title">JOURNAL_LOG — <span id="journal-svc-label" style="color:#fff;">(Select one service)</span></div>
+            <div id="journal-box" class="journal-box">
+                <span style="opacity:0.4; font-size:11px;">Click the "LOG" button for the desired service to view its journal.</span>
+            </div>
+        </div>
+
+    </div><!-- /page-wrap -->
+
+    <!-- CONFIRM MODAL -->
+    <div id="confirm-modal" class="confirm-overlay" style="display:none;">
+        <div class="confirm-box">
+            <div class="confirm-title" id="confirm-title">¿Confirma action?</div>
+            <div class="confirm-body" id="confirm-body"></div>
+            <div style="display:flex; gap:10px; margin-top:18px;">
+                <button class="btn-action btn-danger" id="confirm-yes" onclick="executeConfirmed()">YES, RUN</button>
+                <button class="btn-action btn-secondary" onclick="closeConfirm()">CANCEL</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/setup.js"></script>
+
+    <!-- MAINTAIN THIS FOOTER INTACT -->
+    <footer style="padding: 20px; text-align: center; font-family: sans-serif; font-size: 0.9em; color: #555;">
+        <div class="copyright-container">
+            <p>&copy; <span id="year"></span> Álvaro Rubio Adán. All rights reserved.</p>
+            <p>
+                Licensed under the <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" style="color: #007bff; text-decoration: none;">Creative Commons Attribution 4.0 International License</a>.
+                You are free to share and adapt this material as long as appropriate credit is given to the original author.
+            </p>
+        </div>
+        <script src="js/year.js"></script>
+    </footer>
+
+</body>
+</html>

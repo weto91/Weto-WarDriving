@@ -1,0 +1,93 @@
+/*
+ * Copyright (c) 2026 Álvaro Rubio Adán
+ * Licensed under CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/)
+ * Usage and modification permitted with attribution to the author.
+ */
+
+/* ════════════════════════════════════════════════════════
+   WETO — COMMON STYLES
+   Compartido por: about.css · map.css · stats.css · status.css · table.css
+   ════════════════════════════════════════════════════════ */
+
+/* ── VARIABLES GLOBALES (comunes a todos los ficheros) ── */
+:root {
+    --primary: #00f2ff;
+    --accent:  #7000ff;
+    --bg:      #0b0e14;
+    --text:    #c4cfdd;
+}
+
+/* ── OVERLAY ── */
+/* Idéntico en los 5 ficheros */
+#menu-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.8);
+    z-index: 9999;
+}
+
+/* ── NAV LATERAL ── */
+/* Idéntico en about · map · stats · table (status tiene variante propia) */
+#nav-menu {
+    position: fixed;
+    top: 0;
+    left: -100%;
+    width: 270px;
+    height: 100%;
+    background: #07090d;
+    border-right: 1px solid #222;
+    z-index: 10000;
+    transition: 0.35s;
+    display: flex;
+    flex-direction: column;
+    padding: 60px 0 0 0;
+    box-sizing: border-box;
+}
+
+#nav-menu.active {
+    left: 0;
+}
+
+#nav-menu a {
+    display: block;
+    padding: 20px 25px;
+    color: #777;
+    text-decoration: none;
+    font-size: 17px;
+    letter-spacing: 1px;
+    border-bottom: 1px solid #1a1a1a;
+}
+
+#nav-menu a.active,
+#nav-menu a:hover {
+    color: var(--primary);
+    background: #0f1218;
+}
+
+/* ── BOTÓN MENÚ FAB ── */
+/* Idéntico en los 5 ficheros */
+.fab-menu {
+    position: fixed;
+    bottom: 25px;
+    left: 25px;
+    z-index: 10001;
+    width: 62px;
+    height: 62px;
+    background: var(--primary);
+    border-radius: 50%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+    cursor: pointer;
+    box-shadow: 0 0 20px rgba(0,242,255,0.4);
+}
+
+.fab-menu span {
+    width: 26px;
+    height: 3px;
+    background: #000;
+    border-radius: 2px;
+}

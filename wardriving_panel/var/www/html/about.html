@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="es">
+	<!--
+	Copyright (c) 2026 Álvaro Rubio Adán
+	Licensed under the Creative Commons Attribution 4.0 International (CC BY 4.0)
+	You are free to share and adapt this material under the condition that 
+	appropriate credit is given to the original author.
+	Full license text: https://creativecommons.org/licenses/by/4.0/
+	-->
+<head>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta charset="UTF-8">
+    <title>Weto-WarDriving (ABOUT)</title>
+	<link rel="stylesheet" href="css/common.css">
+     <link rel="stylesheet" href="css/about.css">
+</head>
+<body>
+	<!-- NAV LATERAL -->
+    <nav id="nav-menu">
+        <a href="index.html">01_HOME</a>
+        <a href="map.html">02_MAP</a>
+        <a href="graficos.html">03_STATISTICS</a>
+        <a href="about.html" class="active">04_PROJECT</a>
+        <a href="status.html">05_STATUS</a>
+        <a href="setup.html">06_SETUP</a>
+    </nav>
+    <div id="menu-overlay" onclick="toggleMenu()"></div>
+    <div class="fab-menu" onclick="toggleMenu()"><span></span><span></span><span></span></div>
+    <script src="js/about.js"></script>
+	
+	<!-- ABOUT BOXES -->
+    <div class="container">      
+        <div class="header">
+            <h1>ÁLVARO RUBIO ADÁN</h1>
+            <div class="subtitle">ARCHITECT // CLOUD & SPACE PROJECTS</div>
+            <p style="font-size: 0.8em; opacity: 0.6;">LOC: MADRID, ES // DOB: 1991 // GEN: MALE</p>
+        </div>
+		<!-- PROJECT -->
+        <div class="section" data-id="CORE_SYSTEM">
+            <h2>The project: WETO-WARDRIVING Ecosystem</h2>
+            <p>
+                This ecosystem was born out of a curiosity to audit and visualize the Wi-Fi spectrum autonomously and with geolocation. The hardware core initially utilized a <strong>CYD (Cheap Yellow Display)</strong>; however, due to its technical limitations, achieving precise and fully automated auditing was impossible. Consequently, the project was migrated to a Raspberry Pi—specifically the <strong>Raspberry Pi Zero 2 W</strong> paired with a USB Wi-Fi dongle featuring the <strong>MTK7601</strong> chipset (monitor mode compatible), a serial GPS receiver <strong>(M8L)</strong>, and <strong>three 4000mAh Li-Po batteries</strong> connected in parallel via a <strong>TC4056A module</strong>. This setup provides the Raspberry Pi with approximately <strong>20 hours of battery life </strong>under the project's specific workload. The work flow is the following:
+            </p>
+            
+            <div class="tech-grid">
+                <div class="tech-item">
+                    <span class="tech-label">1.- GPS Capture</span>
+                    <span class="tech-val">gpsd receives NMEA data from the GPS receiver connected to /dev/ttyAMA0. The wardriving.sh script continuously reads from gpspipe and writes the latest valid position (mode > 1)—including latitude, longitude, and timestamp—to a temporary file..</span>
+                </div>
+                <div class="tech-item">
+                    <span class="tech-label">2.- GPS Signal Monitor (LED)</span>
+                    <span class="tech-val">The gpscheck service monitors the GPS mode in real-time and indicates the status via the Raspberry Pi's ACT LED: off (no signal), slow blink (Mode 1), fast blink (2D fix), or solid on (3D fix).</span>
+                </div>
+                <div class="tech-item">
+                    <span class="tech-label">3.- Wi-Fi Network Capture</span>
+                    <span class="tech-val">wardriving.sh sets the wlan1 interface to monitor mode and launches a background channel hopper that cycles through channels 1-13 every 0.5 seconds. Simultaneously, tshark captures beacon frames (subtype 0x08), extracting BSSID, SSID, RSSI, channel, AKM, and privacy flags.</span>
+                </div>
+                <div class="tech-item">
+                    <span class="tech-label">4.- Beacon Processing and Enrichment</span>
+                    <span class="tech-val">For each captured beacon, the script discards those lacking a GPS fix, decodes the SSID from hex, maps the AKM/PCS fields to security labels (WPA2, WPA3, WEP, OPEN…), identifies encryption (AES, TKIP…), and queries the MariaDB mac_cache table to resolve the vendor based on the BSSID’s OUI prefix.</span>
+                </div>
+				<div class="tech-item">
+                    <span class="tech-label">5.- Database Persistence</span>
+                    <span class="tech-val">The enriched data is inserted into the MariaDB wifi_networks table using an INSERT … ON DUPLICATE KEY UPDATE statement. This updates the position, RSSI, security, and vendor only if the new RSSI is stronger than the previously recorded value.</span>
+                </div>
+				<div class="tech-item">
+                    <span class="tech-label">6.- Reverse Geolocation</span>
+                    <span class="tech-val">localization.py queries entries in wifi_networks that have coordinates but lack assigned street or city information. For each entry, it searches a SQLite database (calles.sqlite with SpatiaLite) for the nearest street and corresponding city, then updates the record in MariaDB.</span>
+                </div>
+				<div class="tech-item">
+                    <span class="tech-label">7.- Web Service and Visualization</span>
+                    <span class="tech-val">Apache serves static HTML pages, while get_data.php and status_api.php act as the API, querying MariaDB and returning JSON. The web pages consume these endpoints to display a paginated, searchable network list (index.html), an interactive map with clusters and filters (map.html), statistical charts (graficos.html), and a real-time system status dashboard (status.html).</span>
+                </div>
+				<div class="tech-item">
+                    <span class="tech-label">8.- System Monitoring</span>
+                    <span class="tech-val">status.html refreshes every 3 seconds by polling status_api.php, which returns CPU/RAM/uptime metrics, GPS status, database totals, security distribution, channel usage, top cities, and the status of active processes (tshark, wardriving.sh, channel hopper, and wlan1 mode).</span>
+                </div>
+            </div>
+        </div>
+		<!-- ME -->
+        <div class="section" data-id="AUTHOR_BIO">
+            <h2>Cloud Architect & Expert</h2>
+            <p>
+            I currently serve as a Cloud and Hardware Architect (On-premise), designing, implementing, and managing critical infrastructures where fault tolerance and security are imperative. My expertise spans from virtualization, containerization, and database management to automation and the implementation of AI models applied to productivity and the delivery of advanced projects.
+            </p>
+            <div class="tag-container">
+                <span class="tag">DevOps</span>
+                <span class="tag">AI & Deep Learning</span>
+                <span class="tag">Virtualization</span>
+                <span class="tag">Network Engineer</span>
+                <span class="tag">Cybersecurity</span>
+                <span class="tag">Cloud Architect</span>
+				<span class="tag">Aerospace projects</span>
+				<span class="tag">Containers</span>
+            </div>
+        </div>    
+		<!-- URLS -->
+        <div class="links">
+            <a href="https://github.com/weto91" target="_blank" class="btn">GitHub Repository</a>
+            <a href="https://mordle.x10.mx" target="_blank" class="btn">Mordle Game Hosting</a>
+        </div>
+    </div>
+	<!-- MAINTAIN THIS FOOTER INTACT -->
+	<footer style="padding: 20px; text-align: center; font-family: sans-serif; font-size: 0.9em; color: #555;">
+		<div class="copyright-container">
+			<p>&copy; <span id="year"></span> Álvaro Rubio Adán. All rights reserved.</p>
+			<p>
+				Licensed under the <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" style="color: #007bff; text-decoration: none;">Creative Commons Attribution 4.0 International License</a>.
+				You are free to share and adapt this material as long as appropriate credit is given to the original author.
+			</p>
+		</div>
+	
+		<script src="js/year.js"></script>
+	</footer>
+</body>
+</html>

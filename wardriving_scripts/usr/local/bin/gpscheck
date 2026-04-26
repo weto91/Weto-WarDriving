@@ -1,0 +1,93 @@
+#!/bin/bash
+# gps-monitor.sh — Monitor de estado GPS con control de LED ACT
+# Raspberry Pi Zero 2 W — WETO Project
+# Requiere: gpsd, gpspipe, jq
+ 
+LED="/sys/class/leds/ACT/brightness"
+ 
+# --- Funciones de LED ---
+led_off()   { echo 0 > "$LED"; }
+led_on()    { echo 1 > "$LED"; }
+ 
+# Parpadeo bloqueante: led_blink <intervalo_segundos> <duracion_ciclo_segundos>
+# Se ejecuta en background y se cancela en el siguiente ciclo del bucle principal
+led_blink_slow() {
+    # Parpadeo lento: 1 segundo encendido, 1 segundo apagado
+    while true; do
+        echo 1 > "$LED"; sleep 1
+        echo 0 > "$LED"; sleep 1
+    done
+}
+ 
+led_blink_fast() {
+    # Parpadeo rápido: 0.1s encendido, 0.1s apagado
+    while true; do
+        echo 1 > "$LED"; sleep 0.1
+        echo 0 > "$LED"; sleep 0.1
+    done
+}
+ 
+# PID del proceso de parpadeo en curso
+BLINK_PID=""
+ 
+stop_blink() {
+    if [[ -n "$BLINK_PID" ]] && kill -0 "$BLINK_PID" 2>/dev/null; then
+        kill "$BLINK_PID" 2>/dev/null
+        wait "$BLINK_PID" 2>/dev/null
+    fi
+    BLINK_PID=""
+}
+ 
+cleanup() {
+    stop_blink
+    led_off
+    exit 0
+}
+trap cleanup SIGTERM SIGINT
+ 
+last_mode="-1"
+ 
+while true; do
+    # Obtiene el primer mensaje TPV válido con timeout de 5s
+    raw=$(gpspipe -w -n 20 2>/dev/null | grep -m 1 '"class":"TPV"')
+ 
+    if [[ -z "$raw" ]]; then
+        mode=0
+    else
+        mode=$(echo "$raw" | jq -r '.mode // 0' 2>/dev/null)
+        [[ -z "$mode" || "$mode" == "null" ]] && mode=0
+    fi
+ 
+    # Solo actúa si el modo ha cambiado (evita matar/relanzar blink en cada ciclo)
+    if [[ "$mode" != "$last_mode" ]]; then
+        stop_blink
+        case "$mode" in
+            0|1)
+                # Sin fix: LED apagado / parpadeando lento (modo 1 = sin posición)
+                if [[ "$mode" == "1" ]]; then
+                    led_blink_slow &
+                    BLINK_PID=$!
+                else
+                    led_off
+                fi
+                ;;
+            2)
+                # Fix 2D: parpadeo rápido
+                led_blink_fast &
+                BLINK_PID=$!
+                ;;
+            3)
+                # Fix 3D: LED fijo encendido
+                led_on
+                ;;
+            *)
+                # Desconocido: LED apagado
+                led_off
+                ;;
+        esac
+        last_mode="$mode"
+    fi
+ 
+    # Espera antes del siguiente sondeo (bajo consumo)
+    sleep 3
+done

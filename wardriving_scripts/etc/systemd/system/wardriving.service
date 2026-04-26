@@ -1,0 +1,58 @@
+[Unit]
+Description=WETO WarDriving Engine v1.1
+# gpsd debe estar activo ANTES de arrancar el script, ya que gpspipe depende de él
+After=network.target gpsd.service
+Requires=gpsd.service
+
+[Service]
+Type=simple
+User=root
+
+# --- Variables de entorno: evitan exponer credenciales en ps aux / journalctl ---
+Environment="WETO_IFACE=wlan1"
+Environment="WETO_DB_USER=alra"
+Environment="WETO_DB_PASS=Gmv2MGB2026*!"
+Environment="WETO_DB_NAME=weto_db"
+
+ExecStart=/usr/local/bin/wardriving.sh
+
+# --- Limpieza previa al arranque ---
+# Si el servicio murió mal (crash, corte de luz), wlan1 puede quedar en modo monitor
+# y tshark falla al arrancar. Esto lo resetea limpiamente antes del ExecStart.
+ExecStartPre=/bin/bash -c 'ip link set $WETO_IFACE down 2>/dev/null; iw dev $WETO_IFACE set type managed 2>/dev/null; ip link set $WETO_IFACE up 2>/dev/null; true'
+
+# --- Limpieza al parar ---
+# Garantiza que wlan1 vuelve a modo managed al hacer systemctl stop / reboot
+ExecStopPost=/bin/bash -c 'ip link set $WETO_IFACE down 2>/dev/null; iw dev $WETO_IFACE set type managed 2>/dev/null; ip link set $WETO_IFACE up 2>/dev/null; true'
+
+# --- Política de reinicios ---
+Restart=on-failure
+RestartSec=15
+# Máximo 5 reinicios en 2 minutos. Si falla más (hw desconectado, gpsd muerto), para
+# y no destroza el log con bucles infinitos.
+StartLimitInterval=120
+StartLimitBurst=5
+
+# --- Watchdog ---
+# Si el script se cuelga silenciosamente (tshark bloqueado, gpspipe zombie),
+# systemd lo mata y reinicia tras 5 minutos sin señal de vida.
+# El script debe llamar periódicamente: systemd-notify WATCHDOG=1
+# (ver nota abajo). Si no se implementa, comentar estas dos líneas.
+WatchdogSec=300
+NotifyAccess=main
+
+# --- Logging estructurado ---
+# Los printf del script van a journalctl con identificador propio
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=weto-wardriving
+
+# --- Seguridad mínima (compatible con necesidades root de iw/tshark) ---
+# Aunque corre como root, limitar el impacto de un fallo del script
+PrivateTmp=true
+NoNewPrivileges=false
+
+WorkingDirectory=/usr/local/bin
+
+[Install]
+WantedBy=multi-user.target

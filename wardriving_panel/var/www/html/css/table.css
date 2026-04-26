@@ -1,0 +1,176 @@
+/*
+ * Copyright (c) 2026 Álvaro Rubio Adán
+ * Licensed under CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/)
+ * Usage and modification permitted with attribution to the author.
+ */
+
+/* Requiere: common.css */
+
+/* ── VARIABLES LOCALES ── */
+:root {
+    --card-bg: #161a22;
+    --border:  #2a2f3a;
+}
+
+* {
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+}
+
+body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Consolas', monospace;
+    margin: 0;
+    padding: 0;
+}
+
+/* ── BUSCADOR ── */
+#search-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    padding: 12px 14px;
+    background: #0b0e14;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+#search-input {
+    flex: 1;
+    background: #1a202a;
+    border: 1px solid var(--primary);
+    color: #fff;
+    font-size: 17px;
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-family: 'Consolas', monospace;
+    outline: none;
+}
+
+#search-input::placeholder { color: #444; }
+
+#result-info { font-size: 12px; color: #555; padding: 0 14px 8px 14px; margin-top: 72px; }
+
+/* ── LISTA DE CARDS ── */
+#card-list { padding: 80px 10px 100px 10px; }
+
+.net-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    margin-bottom: 10px;
+    padding: 14px 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    transition: border-color 0.2s, background 0.2s;
+}
+
+.net-card:active { background: rgba(0,242,255,0.05); border-color: var(--primary); }
+
+.net-icon { position: relative; flex-shrink: 0; width: 32px; height: 32px; }
+.net-icon .outer { width: 32px; height: 32px; border-radius: 50%; border: 1px solid rgba(0,0,0,0.5); }
+.net-icon .inner { width: 14px; height: 14px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.4); position: absolute; top: 9px; left: 9px; }
+
+.net-info { flex: 1; min-width: 0; }
+.net-ssid { font-size: 16px; font-weight: bold; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.net-ssid.hidden { color: #555; font-style: italic; }
+.net-meta { font-size: 12px; color: #555; margin-top: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.net-meta span { margin-right: 8px; }
+
+.net-right { text-align: right; flex-shrink: 0; }
+.net-sec { font-size: 11px; font-weight: bold; padding: 3px 8px; border-radius: 4px; background: rgba(0,0,0,0.4); border: 1px solid; margin-bottom: 4px; }
+.net-date { font-size: 11px; color: #444; }
+
+/* ── PAGINACIÓN ── */
+#pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 16px;
+    padding: 16px 0 110px 0;
+    font-size: 15px;
+}
+
+.pg-btn {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    color: var(--primary);
+    padding: 10px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-family: 'Consolas', monospace;
+    font-size: 15px;
+}
+
+.pg-btn:disabled { opacity: 0.3; pointer-events: none; }
+#pg-info { color: #555; font-size: 13px; }
+
+/* ── MODAL DETALLE ── */
+#detailModal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.97);
+    z-index: 10002;
+    justify-content: flex-end;
+    align-items: flex-end;
+}
+
+#detailModal.open { display: flex; }
+
+.modal-sheet {
+    background: #161a22;
+    border: 2px solid var(--primary);
+    border-radius: 20px 20px 0 0;
+    width: 100%;
+    max-height: 88vh;
+    overflow-y: auto;
+    padding: 24px 20px 40px 20px;
+}
+
+.modal-handle { width: 48px; height: 5px; background: #333; border-radius: 3px; margin: 0 auto 20px auto; }
+
+.modal-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; }
+.modal-ssid { font-size: 18px; color: #fff; font-weight: bold; flex: 1; margin-right: 12px; word-break: break-word; }
+.modal-close { font-size: 30px; color: #ff4b4b; font-weight: bold; cursor: pointer; line-height: 1; }
+
+.detail-row { border-left: 3px solid var(--accent); padding: 10px 0 10px 14px; margin-bottom: 14px; }
+.d-label { font-size: 11px; color: var(--primary); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px; }
+.d-value { font-size: 16px; color: #fff; font-weight: bold; word-break: break-all; }
+
+.btn-maps {
+    display: block;
+    margin-top: 24px;
+    text-align: center;
+    padding: 18px;
+    background: var(--primary);
+    color: #000;
+    text-decoration: none;
+    font-weight: bold;
+    border-radius: 10px;
+    font-size: 17px;
+    text-transform: uppercase;
+    font-family: 'Consolas', monospace;
+}
+
+/* ── LOADING ── */
+#loading { text-align: center; padding: 60px 20px; color: #444; font-size: 14px; }
+
+.spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid #1a1a1a;
+    border-top-color: var(--primary);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin: 0 auto 16px auto;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }

@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="es">
+	<!--
+	Copyright (c) 2026 Álvaro Rubio Adán
+	Licensed under the Creative Commons Attribution 4.0 International (CC BY 4.0)
+	You are free to share and adapt this material under the condition that 
+	appropriate credit is given to the original author.
+	Full license text: https://creativecommons.org/licenses/by/4.0/
+	-->
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Weto-WarDriving (TABLE)</title>
+    <script src="lib/jquery-3.7.0.min.js"></script>
+	<link rel="stylesheet" href="css/common.css">
+	<link rel="stylesheet" href="css/table.css">
+</head>
+<body>
+    <!-- NAV LATERAL -->
+    <nav id="nav-menu">
+        <a href="index.html" class="active">01_HOME</a>
+        <a href="map.html">02_MAP</a>
+        <a href="graficos.html">03_STATISTICS</a>
+        <a href="about.html">04_PROJECT</a>
+		<a href="status.html">05_STATUS</a>
+        <a href="setup.html">06_SETUP</a>
+    </nav>
+    <div id="menu-overlay" onclick="toggleMenu()"></div>
+    <div class="fab-menu" onclick="toggleMenu()"><span></span><span></span><span></span></div>
+
+    <!-- SEARCH BAR -->
+    <div id="search-bar">
+        <input id="search-input" type="search" placeholder="🔍 FIND NODE..." autocomplete="off">
+    </div>
+
+    <!-- LIST -->
+    <div id="card-list">
+        <div id="loading"><div class="spinner"></div>LOADING_DATA...</div>
+    </div>
+
+    <!-- PAGINATION -->
+    <div id="pagination" style="display:none;">
+        <button class="pg-btn" id="pg-prev" onclick="changePage(-1)">❮ PREV</button>
+        <span id="pg-info">1 / 1</span>
+        <button class="pg-btn" id="pg-next" onclick="changePage(1)">NEXT ❯</button>
+    </div>
+
+    <!-- MODAL DETAIL -->
+    <div id="detailModal">
+        <div class="modal-sheet">
+            <div class="modal-handle"></div>
+            <div class="modal-header">
+                <div class="modal-ssid" id="modal-ssid"></div>
+                <div class="modal-close" onclick="closeModal()">✕</div>
+            </div>
+            <div id="modal-body"></div>
+            <a id="maps-link" href="#" target="_blank" class="btn-maps">📍 SHOW IN MAP</a>
+        </div>
+    </div>
+	<script src="js/table.js"></script>
+	<!-- MAINTAIN THIS FOOTER INTACT -->
+	<footer style="padding: 20px; text-align: center; font-family: sans-serif; font-size: 0.9em; color: #555;">
+		<div class="copyright-container">
+			<p>&copy; <span id="year"></span> Álvaro Rubio Adán. All rights reserved.</p>
+			<p>
+				Licensed under the <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" style="color: #007bff; text-decoration: none;">Creative Commons Attribution 4.0 International License</a>.
+				You are free to share and adapt this material as long as appropriate credit is given to the original author.
+			</p>
+		</div>	
+		<script src="js/year.js"></script>
+	</footer>
+</body>
+</html>

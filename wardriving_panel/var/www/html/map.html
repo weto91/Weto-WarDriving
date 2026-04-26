@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="es">
+	<!--
+	Copyright (c) 2026 Álvaro Rubio Adán
+	Licensed under the Creative Commons Attribution 4.0 International (CC BY 4.0)
+	You are free to share and adapt this material under the condition that 
+	appropriate credit is given to the original author.
+	Full license text: https://creativecommons.org/licenses/by/4.0/
+	-->
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Weto-WarDriving (MAP)</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/leaflet.markercluster.js"></script>
+	<link rel="stylesheet" href="css/common.css">
+    <link rel="stylesheet" href="css/map.css">
+</head>
+<body>
+	<!-- NAV LATERAL -->
+    <nav id="nav-menu">
+        <a href="index.html">01_HOME</a>
+        <a href="map.html" class="active">02_MAP</a>
+        <a href="graficos.html">03_STATISTICS</a>
+        <a href="about.html">04_PROJECT</a>
+        <a href="status.html">05_STATUS</a>
+        <a href="setup.html">06_SETUP</a>
+    </nav>
+    <div id="menu-overlay" onclick="toggleMenu()"></div>
+    <div class="fab-menu" onclick="toggleMenu()"><span></span><span></span><span></span></div>
+
+	<!-- LOCATION BUTTON -->
+    <div id="locate-btn" onclick="locateMe()">[ SCAN_LOCATION ]</div>
+
+    <!-- LAYER SELECTOR -->
+    <div id="layer-btn" onclick="toggleLayerMenu()">[ MAP_STYLE ]</div>
+    <div id="layer-menu">
+        <div class="layer-opt" onclick="setLayer('night')">🌑 NIGHT</div>
+        <div class="layer-opt" onclick="setLayer('day')">☀️ LIGHT</div>
+        <div class="layer-opt" onclick="setLayer('vibrant')">🗺️ VIBRANT</div>
+    </div>
+
+	<!-- LEGEND / FILTERS -->
+    <div id="info-panel">
+        <div class="panel-header" onclick="togglePanel()">
+            <span>FILTERS_AND_LEGEND</span>
+            <span id="panel-arrow">▲</span>
+        </div>
+        <div id="panel-content">
+            <div id="count-block">
+                <span id="count">0</span>
+                <small>NODES_IN_SCREEN</small>
+            </div>
+            <span class="stat-header">SIGNAL_STRENGTH</span>
+            <div class="legend-item" onclick="toggleFilter(this,'sig','exc')"><div><span class="dot" style="background:#2ecc71"></span>EXCELLENT</div><span id="c-exc">0</span></div>
+            <div class="legend-item" onclick="toggleFilter(this,'sig','ok')"><div><span class="dot" style="background:#f1c40f"></span>NORMAL</div><span id="c-ok">0</span></div>
+            <div class="legend-item" onclick="toggleFilter(this,'sig','bad')"><div><span class="dot" style="background:#e74c3c"></span>BAD</div><span id="c-bad">0</span></div>
+            <span class="stat-header">SECURITY_PROTOCOL</span>
+            <div class="legend-item" onclick="toggleFilter(this,'sec','OPEN')"><div><span class="dot" style="background:#3498db"></span>OPEN</div><span id="s-OPEN">0</span></div>
+            <div class="legend-item" onclick="toggleFilter(this,'sec','OWE')"><div><span class="dot" style="background:#00d2ff"></span>OWE</div><span id="s-OWE">0</span></div>
+            <div class="legend-item" onclick="toggleFilter(this,'sec','WEP')"><div><span class="dot" style="background:#2ecc71"></span>WEP</div><span id="s-WEP">0</span></div>
+            <div class="legend-item" onclick="toggleFilter(this,'sec','WPA')"><div><span class="dot" style="background:#f39c12"></span>WPA</div><span id="s-WPA">0</span></div>
+            <div class="legend-item" onclick="toggleFilter(this,'sec','WPA2')"><div><span class="dot" style="background:#e67e22"></span>WPA2</div><span id="s-WPA2">0</span></div>
+            <div class="legend-item" onclick="toggleFilter(this,'sec','WPA/WPA2')"><div><span class="dot" style="background:#d35400"></span>WPA/WPA2</div><span id="s-WPA_WPA2">0</span></div>
+            <div class="legend-item" onclick="toggleFilter(this,'sec','WPA2-ENT')"><div><span class="dot" style="background:#9b59b6"></span>WPA2-ENT</div><span id="s-WPA2-ENT">0</span></div>
+            <div class="legend-item" onclick="toggleFilter(this,'sec','WPA3')"><div><span class="dot" style="background:#e74c3c"></span>WPA3</div><span id="s-WPA3">0</span></div>
+            <div class="legend-item" onclick="toggleFilter(this,'sec','WPA2/WPA3')"><div><span class="dot" style="background:#c0392b"></span>WPA2/WPA3</div><span id="s-WPA2_WPA3">0</span></div>
+            <div class="legend-item" onclick="toggleFilter(this,'sec','WPA3-ENT192')"><div><span class="dot" style="background:#8e44ad"></span>WPA3-ENT192</div><span id="s-WPA3-ENT192">0</span></div>
+            <div class="legend-item" onclick="toggleFilter(this,'sec','WAPI')"><div><span class="dot" style="background:#1abc9c"></span>WAPI</div><span id="s-WAPI">0</span></div>
+            <div class="legend-item" onclick="toggleFilter(this,'sec','UNKNOWN')"><div><span class="dot" style="background:#7f8c8d"></span>UNKNOWN</div><span id="s-UNKNOWN">0</span></div>
+        </div>
+    </div>
+
+	<!-- NO INTERNET OVERLAY -->
+	<div id="no-internet">
+		<div id="no-internet-box">
+			<div id="no-internet-icon">⚠</div>
+			<div id="no-internet-title">NO_INTERNET_CONNECTION</div>
+			<div id="no-internet-body">The map cannot be displayed because there is no internet access.<br><br>Map tiles are loaded from external servers and require connectivity.<br><br><span class="ni-hint">► Ensure that the device you are using to view this page has internet access.</span></div>
+			<div id="no-internet-sub">Other features (table, statistics, status) are still available.</div>
+		</div>
+	</div>
+	<!-- MAP -->
+    <div id="map"></div>
+	<script src="js/map.js"></script>
+
+	<!-- MAINTAIN THIS FOOTER INTACT -->
+	<footer style="padding: 20px; text-align: center; font-family: sans-serif; font-size: 0.9em; color: #555;">
+		<div class="copyright-container">
+			<p>&copy; <span id="year"></span> Álvaro Rubio Adán. All rights reserved.</p>
+			<p>
+				Licensed under the <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" style="color: #007bff; text-decoration: none;">Creative Commons Attribution 4.0 International License</a>.
+				You are free to share and adapt this material as long as appropriate credit is given to the original author.
+			</p>
+		</div>
+		<script src="js/year.js"></script>
+	</footer>
+</body>
+</html>

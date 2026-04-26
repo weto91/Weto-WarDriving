@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="es">
+	<!--
+	Copyright (c) 2026 Álvaro Rubio Adán
+	Licensed under the Creative Commons Attribution 4.0 International (CC BY 4.0)
+	You are free to share and adapt this material under the condition that 
+	appropriate credit is given to the original author.
+	Full license text: https://creativecommons.org/licenses/by/4.0/
+	-->
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Weto-WarDriving (STATUS)</title>
+	<link rel="stylesheet" href="css/common.css">
+	<link rel="stylesheet" href="css/status.css">
+</head>
+<body>   
+	<!-- NAV LATERAL -->  
+    <nav id="nav-menu">
+        <a href="index.html">01_HOME</a>
+        <a href="map.html">02_MAP</a>
+        <a href="graficos.html">03_STATISTICS</a>
+        <a href="about.html">04_PROJECT</a>
+        <a href="status.html" class="active">05_STATUS</a>
+        <a href="setup.html">06_SETUP</a>
+    </nav>
+	<div id="menu-overlay" onclick="toggleMenu()"></div>
+	<div class="fab-menu" onclick="toggleMenu()"><span></span><span></span><span></span></div>
+	
+	<!-- TITLE BAR -->  
+    <div class="page-wrap">
+        <div class="page-header">
+            <h1>WETO_WARDRIVING <span>STATUS</span></h1>
+            <div id="live-clock">
+                <span id="sync-indicator"></span>
+                <span id="clock-val">--:--:--</span><br>
+                <span style="font-size:9px; opacity:0.4;">REFRESH 3s</span>
+            </div>
+        </div>
+
+        <!-- ROW 1: System + GPS + Processes -->
+        <div class="grid-top">
+
+            <!-- CPU & RAM -->
+            <div class="card" data-id="SYS_RESOURCES">
+                <div class="card-title">SYSTEM_RESOURCES</div>
+                <div style="display:flex; gap:18px; margin-bottom:10px;">
+                    <div>
+                        <div id="cpu-val" class="big-number ok">--</div>
+                        <div class="sub-label">CPU %</div>
+                    </div>
+                    <div>
+                        <div id="mem-val" class="big-number ok">--</div>
+                        <div class="sub-label">MEM %</div>
+                    </div>
+                </div>
+                <div class="bar-wrap">
+                    <div class="bar-track"><div id="cpu-bar" class="bar-fill" style="width:0%; background:var(--green);"></div></div>
+                    <div class="bar-info"><span>CPU</span><span id="cpu-bar-lbl">--%</span></div>
+                </div>
+                <div class="bar-wrap">
+                    <div class="bar-track"><div id="mem-bar" class="bar-fill" style="width:0%; background:var(--primary);"></div></div>
+                    <div class="bar-info"><span id="mem-used-lbl">-- MB</span><span id="mem-total-lbl">-- MB</span></div>
+                </div>
+                <div style="margin-top:12px; font-size:10px; opacity:0.5;">
+                    UPTIME <span id="uptime-val" class="uptime-val" style="font-size:10px;">---</span>
+                </div>
+            </div>
+
+            <!-- GPS -->
+            <div class="card" data-id="GPS_SENSOR">
+                <div class="card-title">GPS_SENSOR -- /dev/ttyAMA0</div>
+                <div id="gps-badge" class="gps-mode-badge" style="background:#1e242e; color:#fff;">MODE: --</div>
+                <div id="gps-desc" style="font-size:10px; opacity:0.5; margin-bottom:8px;">Waiting for data...</div>
+                <div class="gps-coord" id="gps-lat">LAT: --</div>
+                <div class="gps-coord" id="gps-lon">LON: --</div>
+                <div class="gps-row">
+                    <span><b>SATS</b><br><span id="gps-sats">--</span></span>
+                    <span><b>GPS DATE-TIME</b><br><span id="gps-time" style="font-size:9px;">--</span></span>
+                    <span><b>SERIAL PORT</b><br><span id="gps-port">--</span></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- FROW 2: TOTALS + LAST NODE + CHANNELS -->
+        <div class="grid-mid">
+
+            <!-- Total BD -->
+            <div class="card" data-id="DB_TOTALS">
+                <div class="card-title">DATABASE_TOTALS</div>
+                <div id="db-total" class="big-number ok">--</div>
+                <div class="sub-label">CAPTURED NODES</div>
+                <div style="margin-top:14px; display:flex; gap:20px;">
+                    <div>
+                        <div style="font-size:1.4em; font-weight:bold; color:var(--yellow);" id="db-24h">--</div>
+                        <div class="sub-label">LAST 24H</div>
+                    </div>
+                    <div>
+                        <div style="font-size:1.4em; font-weight:bold; color:var(--red);" id="db-open">--</div>
+                        <div class="sub-label">OPEN (risk)</div>
+                    </div>
+                </div>
+                <div id="alert-open-container"></div>
+            </div>
+
+            <!-- Top Cities -->
+            <div class="card" data-id="TOP_CITIES">
+                <div class="card-title">TOP_CITIES</div>
+                <div class="cities-list" id="cities-list">
+                    <div style="opacity:0.4; font-size:11px;">Loading...</div>
+                </div>
+            </div>
+
+            <!-- CHANNELS -->
+            <div class="card" data-id="CHANNEL_DIST">
+                <div class="card-title">WIRELESS_CHANNELS</div>
+                <div class="ch-grid" id="ch-grid">
+                    <div style="opacity:0.4; font-size:11px;">Loading...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- WarDriving Services -->
+        <div class="grid-top" style="margin-bottom:14px;">
+            <div class="card" data-id="WARDRIVING_PROC">
+                <div class="card-title">WARDRIVING_MAIN_SERVICES</div>
+                <div class="proc-list" id="proc-list">
+                    <div style="opacity:0.4; font-size:11px;">Loading...</div>
+                </div>
+            </div>
+
+            <!-- Last Detected Node -->
+            <div class="card" data-id="LAST_NET">
+                <div class="card-title">LAST_DETECTED_NODES</div>
+                <div class="last-net" id="last-net">
+                    <div style="opacity:0.4; font-size:11px;">Loading...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Security Statistics -->
+        <div class="grid-top" style="margin-bottom:14px;">
+            <div class="card" data-id="SEC_DIST">
+                <div class="card-title">SECURITY_STATISTICS</div>
+                <div class="sec-bars" id="sec-bars">
+                    <div style="opacity:0.4; font-size:11px;">Loading...</div>
+                </div>
+            </div>
+
+            <!-- FOR FUN SUMMARY -->
+            <div class="card" data-id="INTEL">
+                <div class="card-title">FOR_FUN_SUMMARY</div>
+                <div id="intel-box">
+                    <div style="opacity:0.4; font-size:11px;">Loading...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- LIVE FEED -->
+        <div class="grid-bottom">
+            <div class="card" data-id="LIVE_FEED">
+                <div class="card-title">LIVE_FEED -- LAST_20_DETECTED_NETWORKS</div>
+                <div class="feed-scroll">
+                    <div id="live-feed-list">
+                        <div style="opacity:0.4; font-size:11px; padding:10px 0;">Waiting for real time data...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="js/status.js"></script>
+	
+	<!-- MAINTAIN THIS FOOTER INTACT -->
+	<footer style="padding: 20px; text-align: center; font-family: sans-serif; font-size: 0.9em; color: #555;">
+		<div class="copyright-container">
+			<p>&copy; <span id="year"></span> Álvaro Rubio Adán. All rights reserved.</p>
+			<p>
+				Licensed under the <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" style="color: #007bff; text-decoration: none;">Creative Commons Attribution 4.0 International License</a>.
+				You are free to share and adapt this material as long as appropriate credit is given to the original author.
+			</p>
+		</div>
+	
+		<script src="js/year.js"></script>
+	</footer>
+</body>
+</html>

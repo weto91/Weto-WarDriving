@@ -1,0 +1,30 @@
+[Unit]
+Description=WETO GPS Status Monitor (LED ACT)
+# Arranca después de gpsd y la red, sin bloquear otros servicios
+After=gpsd.service network.target
+Wants=gpsd.service
+
+[Service]
+Type=simple
+ExecStartPre=/bin/sh -c 'echo none > /sys/class/leds/ACT/trigger'
+ExecStart=/usr/local/bin/gpscheck
+Restart=on-failure
+RestartSec=10
+
+# --- Prioridad mínima: no interferir con wardriving, apache, mysql ---
+Nice=19
+CPUSchedulingPolicy=idle
+IOSchedulingClass=idle
+IOSchedulingPriority=7
+
+# Sin límite de memoria relevante (el script apenas consume ~2-3MB)
+MemoryMax=20M
+
+# Seguridad básica
+User=root
+StandardOutput=null
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
+

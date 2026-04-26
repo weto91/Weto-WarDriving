@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="es">
+	<!--
+	Copyright (c) 2026 Álvaro Rubio Adán
+	Licensed under the Creative Commons Attribution 4.0 International (CC BY 4.0)
+	You are free to share and adapt this material under the condition that 
+	appropriate credit is given to the original author.
+	Full license text: https://creativecommons.org/licenses/by/4.0/
+	-->
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Weto-WarDriving (STATISTICS)</title>
+    <script src="lib/chart.min.js"></script>
+    <script src="lib/jquery-3.7.0.min.js"></script>
+	<link rel="stylesheet" href="css/common.css">
+    <link rel="stylesheet" href="css/stats.css">
+</head>
+<body>
+	<!-- NAV LATERAL -->
+    <nav id="nav-menu">
+        <a href="index.html">01_HOME</a>
+        <a href="map.html">02_MAP</a>
+        <a href="graficos.html" class="active">03_STATISTICS</a>
+        <a href="about.html">04_PROJECT</a>
+        <a href="status.html">05_STATUS</a>
+        <a href="setup.html">06_SETUP</a>
+    </nav>
+	<div id="menu-overlay" onclick="toggleMenu()"></div>
+    <div class="fab-menu" onclick="toggleMenu()"><span></span><span></span><span></span></div>
+
+	<!-- GRAPHS -->
+    <div class="page-wrap">
+        <div class="page-header">
+            <h1>WETO_WARDRIVING <span>STATISTICS</span></h1>
+            <div id="live-clock">
+                <span id="sync-indicator"></span>
+                <span id="clock-val">--:--:--</span><br>
+                <span style="font-size:9px; opacity:0.4;">REFRESH 30s</span>
+            </div>
+        </div>
+
+		<!-- KPI SUMMARY ROW -->
+		<div class="kpi-row" id="kpi-row">
+			<div class="kpi-card"><div class="kpi-val" id="kpi-total">--</div><div class="kpi-lbl">TOTAL_NETWORKS</div></div>
+			<div class="kpi-card"><div class="kpi-val kpi-red" id="kpi-open">--</div><div class="kpi-lbl">OPEN_(NO_AUTH)</div></div>
+			<div class="kpi-card"><div class="kpi-val kpi-cyan" id="kpi-cities">--</div><div class="kpi-lbl">CITIES_COVERED</div></div>
+			<div class="kpi-card"><div class="kpi-val kpi-purple" id="kpi-vendors">--</div><div class="kpi-lbl">UNIQUE_VENDORS</div></div>
+			<div class="kpi-card"><div class="kpi-val kpi-green" id="kpi-avg-rssi">--</div><div class="kpi-lbl">AVG_RSSI_(dBm)</div></div>
+			<div class="kpi-card"><div class="kpi-val kpi-yellow" id="kpi-wpa3">--</div><div class="kpi-lbl">WPA3_NETWORKS</div></div>
+		</div>
+
+        <!-- RSSI HISTORY -->
+        <div class="chart-card" style="margin-bottom:20px;">
+            <h3>RSSI_SIGNAL_HISTORY_(CHRONOLOGICAL)</h3>
+            <canvas id="signalLineChart"></canvas>
+        </div>
+
+		<!-- SECURITY GAUGE + RSSI DISTRIBUTION -->
+		<div class="grid-2" style="margin-bottom:20px;">
+			<div class="chart-card">
+				<h3>SECURITY_RISK_INDEX</h3>
+				<div class="gauge-wrap">
+					<canvas id="gaugeChart"></canvas>
+					<div class="gauge-center">
+						<div class="gauge-pct" id="gauge-pct">--%</div>
+						<div class="gauge-sub">SECURED</div>
+					</div>
+				</div>
+				<div id="sec-breakdown" class="sec-pills"></div>
+			</div>
+			<div class="chart-card">
+				<h3>RSSI_SIGNAL_DISTRIBUTION</h3>
+				<canvas id="rssiDistChart"></canvas>
+				<div class="rssi-legend">
+					<span class="rssi-dot" style="background:#2ecc71"></span>Excellent (&gt;-60)
+					<span class="rssi-dot" style="background:#f1c40f"></span>Good (-60/-75)
+					<span class="rssi-dot" style="background:#e67e22"></span>Fair (-75/-85)
+					<span class="rssi-dot" style="background:#e74c3c"></span>Poor (&lt;-85)
+				</div>
+			</div>
+		</div>
+
+        <div class="grid-2">
+			<!-- TOP 10 CITIES -->
+            <div class="chart-card">
+                <h3>TOP_10_CITIES</h3>
+                <canvas id="cityChart"></canvas>
+            </div>
+			<!-- TOP 10 VENDORS -->
+            <div class="chart-card">
+                <h3>TOP_10_VENDORS</h3>
+                <canvas id="vendorChart"></canvas>
+            </div>
+        </div>
+
+		<!-- CHANNEL DISTRIBUTION -->
+		<div class="chart-card" style="margin-bottom:20px; margin-top:20px;">
+			<h3>WIFI_CHANNEL_DISTRIBUTION_(2.4GHz_vs_5GHz)</h3>
+			<canvas id="channelChart"></canvas>
+		</div>
+
+		<!-- CAPTURE HEATMAP (day x hour) -->
+		<div class="chart-card" style="margin-bottom:20px;">
+			<h3>CAPTURE_HEATMAP_(DAY_OF_WEEK_×_HOUR)</h3>
+			<div class="heatmap-wrap" id="heatmap-wrap">
+				<div style="opacity:0.4;font-size:12px;">Loading...</div>
+			</div>
+		</div>
+
+		<!-- NETWORK ACTIVITY OVER TIME (captures per day) -->
+		<div class="chart-card" style="margin-bottom:20px;">
+			<h3>CAPTURE_ACTIVITY_PER_DAY</h3>
+			<canvas id="activityChart"></canvas>
+		</div>
+
+		<!-- TOP SSIDs -->
+		<div class="chart-card" style="margin-bottom:20px;">
+			<h3>TOP_10_REPEATED_SSIDS_(OPERATOR_NETS)</h3>
+			<canvas id="ssidChart"></canvas>
+		</div>
+
+		<!-- ENCRYPTION TREND OVER TIME -->
+		<div class="chart-card" style="margin-bottom:20px;">
+			<h3>ENCRYPTION_TREND_OVER_TIME_(OPEN_vs_WPA2_vs_WPA3)</h3>
+			<canvas id="encTrendChart"></canvas>
+		</div>
+
+		<!-- BEST / WORST RSSI RECORDS -->
+		<div class="grid-2" style="margin-bottom:20px;">
+			<div class="chart-card">
+				<h3>TOP_5_STRONGEST_SIGNAL_(dBm)</h3>
+				<div class="rssi-table" id="best-rssi-table">
+					<div style="opacity:0.4;font-size:11px;">Loading...</div>
+				</div>
+			</div>
+			<div class="chart-card">
+				<h3>TOP_5_WEAKEST_SIGNAL_(dBm)</h3>
+				<div class="rssi-table" id="worst-rssi-table">
+					<div style="opacity:0.4;font-size:11px;">Loading...</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- PROTOCOLS AND SECURITY -->
+        <div class="chart-card" style="margin-bottom:20px;">
+            <h3>PROTOCOLS_AND_SECURITY</h3>
+            <canvas id="authChart"></canvas>
+        </div>
+        <div class="grid-2">
+			<!-- LIST CITY -->
+            <div class="chart-card">
+                <h3>CITY_LIST_(ENTIRE_LIST)</h3>
+                <div class="scroll-area"><table id="cityTable"><tbody></tbody></table></div>
+            </div>
+			<!-- LIST VENDOR -->
+            <div class="chart-card">
+                <h3>VENDOR_LIST_(ENTIRE_LIST)</h3>
+                <div class="scroll-area"><table id="vendorTable"><tbody></tbody></table></div>
+            </div>
+        </div>
+    </div>
+    <script>
+        function tickClock() {
+            document.getElementById('clock-val').textContent = new Date().toLocaleTimeString('es-ES');
+        }
+        setInterval(tickClock, 1000); tickClock();
+    </script>
+    <script src="js/stats.js"></script>
+	<!-- MAINTAIN THIS FOOTER INTACT -->
+	<footer style="padding: 20px; text-align: center; font-family: sans-serif; font-size: 0.9em; color: #555;">
+		<div class="copyright-container">
+			<p>&copy; <span id="year"></span> Álvaro Rubio Adán. All rights reserved.</p>
+			<p>
+				Licensed under the <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" style="color: #007bff; text-decoration: none;">Creative Commons Attribution 4.0 International License</a>.
+				You are free to share and adapt this material as long as appropriate credit is given to the original author.
+			</p>
+		</div>
+	
+		<script src="js/year.js"></script>
+	</footer>
+</body>
+</html>
