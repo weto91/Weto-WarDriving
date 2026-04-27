@@ -2,8 +2,7 @@
 
 > Autonomous Wi-Fi wardriving ecosystem with GPS geolocation, MariaDB persistence, reverse geolocation, and a mobile-first web dashboard.
 
-**Author:** Álvaro Rubio Adán · [github.com/weto91](https://github.com/weto91) · Madrid, ES  
-**License:** [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)
+**Author:** Álvaro Rubio Adán · [github.com/weto91](https://github.com/weto91)  · **License:** [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)
 
 ---
 
